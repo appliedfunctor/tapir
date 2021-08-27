@@ -2,7 +2,8 @@ package com.ajsworton.tapir
 
 import cats.Applicative
 import cats.implicits._
-import io.circe.{Encoder, Json}
+import io.circe.Decoder.Result
+import io.circe.{Decoder, Encoder, HCursor, Json}
 import org.http4s.EntityEncoder
 import org.http4s.circe._
 
@@ -25,6 +26,9 @@ object HelloWorld {
       final def apply(a: Greeting): Json = Json.obj(
         ("message", Json.fromString(a.greeting)),
       )
+    }
+    implicit  val greetingDecoder: Decoder[Greeting] = new Decoder[Greeting] {
+      override def apply(c: HCursor): Result[Greeting] = c.get("message")
     }
     implicit def greetingEntityEncoder[F[_]]: EntityEncoder[F, Greeting] =
       jsonEncoderOf[F, Greeting]
